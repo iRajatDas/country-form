@@ -1,5 +1,5 @@
 "use client";
-import React, { FC } from "react";
+import React, { FC, useEffect, useState } from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -22,6 +22,8 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { get } from "http";
+import { getLocation } from "@/actions/getUserCountry";
 
 const indianSchema = z
   .object({
@@ -94,10 +96,21 @@ const otherSchema = z
   });
 
 interface FormProps {
-  country: string;
+  country?: string;
 }
 
-const MyForm: FC<FormProps> = ({ country }) => {
+const MyForm: FC<FormProps> = () => {
+  const [country, setCountry] = useState("India");
+
+  useEffect(() => {
+    const getData = async () => {
+      const c = await getLocation();
+      setCountry(c);
+    };
+
+    getData();
+  }, []);
+
   const formSchema = country === "India" ? indianSchema : otherSchema;
 
   const form = useForm<z.infer<typeof formSchema>>({
