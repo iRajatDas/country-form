@@ -24,6 +24,7 @@ import {
 } from "./ui/card";
 import { get } from "http";
 import { getLocation } from "@/actions/getUserCountry";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 
 const indianSchema = z
   .object({
@@ -100,7 +101,7 @@ interface FormProps {
 }
 
 const MyForm: FC<FormProps> = () => {
-  const [country, setCountry] = useState("India");
+  const [country, setCountry] = useState<string | null>(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -129,9 +130,10 @@ const MyForm: FC<FormProps> = () => {
   }
 
   return (
-    <>
+    <LayoutGroup>
       <Form {...form}>
-        <form
+        <motion.form
+          layout
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 w-full"
         >
@@ -143,26 +145,6 @@ const MyForm: FC<FormProps> = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
-              {/* <div className="grid grid-cols-2 gap-6">
-            <Button variant="outline">
-              <Icons.gitHub className="mr-2 h-4 w-4" />
-              Github
-            </Button>
-            <Button variant="outline">
-              <Icons.google className="mr-2 h-4 w-4" />
-              Google
-            </Button>
-          </div> */}
-              {/* <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div> */}
               <div className="grid gap-2">
                 <FormField
                   control={form.control}
@@ -178,37 +160,51 @@ const MyForm: FC<FormProps> = () => {
                   )}
                 />
               </div>
-              <div className="grid gap-2">
-                {country === "India" ? (
-                  <FormField
-                    control={form.control}
-                    name="pan"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>PAN</FormLabel>
-                        <FormControl>
-                          <Input placeholder="ABCDE1234F" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ) : (
-                  <FormField
-                    control={form.control}
-                    name="ssn"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>SSN</FormLabel>
-                        <FormControl>
-                          <Input placeholder="123-45-6789" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
+              <AnimatePresence>
+                {typeof country === "string" ? (
+                  <motion.div
+                    className="grid gap-2"
+                    // pop in animation
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    // pop out animation
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <>
+                      {country === "India" ? (
+                        <FormField
+                          control={form.control}
+                          name="pan"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>PAN</FormLabel>
+                              <FormControl>
+                                <Input placeholder="ABCDE1234F" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      ) : (
+                        <FormField
+                          control={form.control}
+                          name="ssn"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>SSN</FormLabel>
+                              <FormControl>
+                                <Input placeholder="123-45-6789" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
               <div className="grid gap-2">
                 <FormField
                   control={form.control}
@@ -244,9 +240,9 @@ const MyForm: FC<FormProps> = () => {
               <Button className="w-full">Create account</Button>
             </CardFooter>
           </Card>
-        </form>
+        </motion.form>
       </Form>
-    </>
+    </LayoutGroup>
   );
 };
 
