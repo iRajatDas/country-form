@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,7 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { get } from "http";
 import { getLocation } from "@/actions/getUserCountry";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 
@@ -105,14 +103,14 @@ const MyForm: FC<FormProps> = () => {
 
   useEffect(() => {
     const getData = async () => {
-      const c = await getLocation();
-      setCountry(c);
+      const location = await getLocation();
+      setCountry(location.country);
     };
 
     getData();
   }, []);
 
-  const formSchema = country === "India" ? indianSchema : otherSchema;
+  const formSchema = country === "IN" ? indianSchema : otherSchema;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -172,7 +170,7 @@ const MyForm: FC<FormProps> = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <>
-                      {country === "India" ? (
+                      {country === "IN" ? (
                         <FormField
                           control={form.control}
                           name="pan"
@@ -237,7 +235,16 @@ const MyForm: FC<FormProps> = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Create account</Button>
+              <Button
+                className="w-full"
+                disabled={
+                  form.formState.isLoading ||
+                  form.formState.isSubmitting ||
+                  typeof country !== "string"
+                }
+              >
+                Create account
+              </Button>
             </CardFooter>
           </Card>
         </motion.form>
